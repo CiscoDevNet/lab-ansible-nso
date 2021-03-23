@@ -1,0 +1,29 @@
+---
+- name: "Get software version from devices"
+  hosts: all
+  gather_facts: no
+
+  vars:
+    device_path: "/devices/device{% raw %}{{% endraw %}{{ inventory_hostname }}{% raw %}}{% endraw %}/"
+
+  tasks:
+
+    - name: "Get software version from devices using live status"
+      nso_action:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        path: "{{ device_path }}/live-status/exec/show"
+        input:
+          args: "version"
+      register: "show_version"
+
+    - name: "Create directory for outputs"
+      file:
+        path: "./outputs"
+        state: "directory"
+
+    - name: "Save the output to a file"
+      copy:
+        content: "{{ show_version.output.result }}"
+        dest: "outputs/version_{{ inventory_hostname }}.txt"

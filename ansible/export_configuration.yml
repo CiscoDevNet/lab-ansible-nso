@@ -1,0 +1,27 @@
+---
+- name: "Export device configurations"
+  hosts: all
+  gather_facts: no
+
+  vars:
+    device_path: "/devices/device{% raw %}{{% endraw %}{{ inventory_hostname }}{% raw %}}{% endraw %}/"
+
+  tasks:
+
+    - name: "Retrieve device configuration"
+      nso_show:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        path: "{{ device_path }}/config"
+      register: "device_configuration"
+
+    - name: "Create directory for configuration backups"
+      file:
+        path: "./backups"
+        state: "directory"
+
+    - name: "Save device configuration to a file"
+      copy:
+        content: "{{ device_configuration.output.data['tailf-ncs:devices'].device[0].config | to_nice_yaml }}"
+        dest: "./backups/{{ inventory_hostname }}.yml"

@@ -1,0 +1,42 @@
+---
+- name: "Add devices"
+  hosts: all
+  gather_facts: no
+
+  vars:
+    device_path: "/devices/device{% raw %}{{% endraw %}{{ inventory_hostname }}{% raw %}}{% endraw %}/"
+
+  tasks:
+
+    - name: "Add devices to NSO configuration"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                address: "{{ ansible_host }}"
+                authgroup: "{{ authgroup }}"
+                device-type:
+                  cli:
+                    ned-id: "{{ ned }}"
+                    protocol: "{{ protocol }}"
+                state:
+                  admin-state: "unlocked"
+
+    - name: "Fetch SSH keys"
+      nso_action:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        path: "{{ device_path }}/ssh/fetch-host-keys"
+      when: "protocol == 'ssh'"
+
+    - name: "Sync configuration"
+      nso_action:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        path: "{{ device_path }}/sync-from"

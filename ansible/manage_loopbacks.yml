@@ -1,0 +1,78 @@
+---
+- name: "Manage loopback interfaces"
+  hosts: nxos
+  gather_facts: no
+
+  vars:
+    device_path: "/devices/device{% raw %}{{% endraw %}{{ inventory_hostname }}{% raw %}}{% endraw %}/"
+
+  tasks:
+
+    - name: "Add loopback interfaces"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                config:
+                  interface:
+                    loopback:
+                      - name: "{{ item.id }}"
+                        description: "Configured by Ansible"
+      loop: "{{ loopbacks }}"
+      when: "item.state|default('present') == 'present'"
+
+
+    - name: "Configure IP address on loopback interfaces"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                config:
+                  interface:
+                    loopback:
+                      - name: "{{ item.id }}"
+                        ip:
+                          address:
+                            ipaddr: "{{ item.ip_address }}/32"
+      loop: "{{ loopbacks }}"
+      when: "item.state|default('present') == 'present'"
+
+
+    - name: "Remove loopback interfaces"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                config:
+                  interface:
+                    loopback:
+                      - name: "{{ item.id }}"
+                        __state: "absent"
+      loop: "{{ loopbacks }}"
+      when: "item.state|default('present') == 'absent'"
+
+
+    - name: "Read configuration for loopback interfaces"
+      nso_show:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        path: "{{ device_path }}/config/interface/loopback"
+      register: "loopback_config"
+
+
+    - name: "Print configuration"
+      debug:
+        var: "loopback_config"

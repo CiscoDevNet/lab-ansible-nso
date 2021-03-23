@@ -1,0 +1,44 @@
+# === Hosts ===
+
+[iosxr]
+core-rtr01  ansible_host=10.10.20.173
+core-rtr02  ansible_host=10.10.20.174
+
+[ios]
+dist-rtr01  ansible_host=10.10.20.175
+dist-rtr02  ansible_host=10.10.20.175
+
+[nxos]
+dist-sw01   ansible_host=10.10.20.177
+dist-sw02   ansible_host=10.10.20.178
+
+[asa]
+edge-firewall01 ansible_host=10.10.20.171
+
+
+# === Variables ===
+
+[iosxr:vars]
+ned=cisco-iosxr-cli-7.32
+protocol=telnet
+
+[ios:vars]
+ned=cisco-ios-cli-6.67
+protocol=ssh
+
+[nxos:vars]
+ned=cisco-nx-cli-5.20
+protocol=ssh
+
+[asa:vars]
+ned=cisco-asa-cli-6.12
+protocol=telnet
+
+[all:vars]
+authgroup=labadmin
+
+nso_url=https://10.10.20.49/jsonrpc
+nso_username=developer
+nso_password=C1sco12345
+ansible_connection=local
+

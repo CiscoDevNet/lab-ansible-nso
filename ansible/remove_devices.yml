@@ -1,0 +1,17 @@
+---
+- name: "Remove devices"
+  hosts: all
+  gather_facts: no
+
+  tasks:
+
+    - name: "Remove devices from the NSO configuration"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                __state: "absent"

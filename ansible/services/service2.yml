@@ -1,0 +1,9 @@
+---
+service-vlan202:
+  status: "present"
+  vlan:
+    id: 202
+    name: "test-vlan202"
+  switches:
+    - id: "sw02"
+      switch-device: "dist-sw02"

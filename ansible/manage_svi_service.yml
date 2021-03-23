@@ -1,0 +1,37 @@
+---
+- name: "Manage SVI service instances"
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+
+    - name: "Load service configuration files"
+      include_vars:
+        dir: "./services"
+        name: "services"
+
+    - name: "Create service instances"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          svi_verify_example:
+            - name: "{{ item.key }}"
+              vlan-id: "{{ item.value.vlan.id }}" 
+              vlan-name: "{{ item.value.vlan.name }}" 
+              switches: "{{ item.value.switches }}"
+      loop: "{{ services | dict2items }}"      
+      when: "item.value.status == 'present'"
+
+    - name: "Delete service instances"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          svi_verify_example:
+            - name: "{{ item.key }}"
+              __state: "absent"
+      loop: "{{ services | dict2items }}"
+      when: "item.value.status == 'absent'"

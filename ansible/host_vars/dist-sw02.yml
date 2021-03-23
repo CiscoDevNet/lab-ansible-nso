@@ -1,0 +1,8 @@
+---
+loopbacks:
+  - id: 201
+    ip_address: "192.168.201.1"
+    state: "present"
+  - id: 202
+    ip_address: "192.168.202.1"
+    state: "present"

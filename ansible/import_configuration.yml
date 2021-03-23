@@ -1,0 +1,25 @@
+---
+- name: "Import device configurations"
+  hosts: nxos
+  gather_facts: no
+
+  vars:
+    device_path: "/devices/device{% raw %}{{% endraw %}{{ inventory_hostname }}{% raw %}}{% endraw %}/"
+
+  tasks:
+
+    - name: "Load configuration from file"
+      include_vars:
+        file: "./configurations/vlans.yml"
+        name: "config"
+
+    - name: "Load configurations to NSO"
+      nso_config:
+        url: "{{ nso_url }}"
+        username: "{{ nso_username }}"
+        password: "{{ nso_password }}"
+        data:
+          devices:
+            device:
+              - name: "{{ inventory_hostname }}"
+                config: "{{ config }}"
